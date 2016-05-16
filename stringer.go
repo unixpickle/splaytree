@@ -5,10 +5,17 @@ import (
 	"strings"
 )
 
+// String returns a human-readable,
+// indendentation-based representation of
+// the tree.
+// Values are formatted using Go's fmt
+// package.
 func (t *Tree) String() string {
 	return t.Root.String()
 }
 
+// String behaves much like Tree.String(),
+// only for a node within a tree.
 func (n *Node) String() string {
 	if n == nil {
 		return "nil"

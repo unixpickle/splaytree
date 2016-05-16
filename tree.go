@@ -1,5 +1,10 @@
+// Package splaytree implements the splay tree
+// data structure, a self-balancing binary
+// search tree with amortized logarithmic time
+// operations.
 package splaytree
 
+// Value is any comparable type of value.
 type Value interface {
 	// Compare returns 1 if the callee
 	// is greater than v2, -1 if it is
@@ -7,16 +12,22 @@ type Value interface {
 	Compare(v2 Value) int
 }
 
+// Node is a node in a tree.
 type Node struct {
 	Value Value
 	Left  *Node
 	Right *Node
 }
 
+// Tree is a splay tree, which consists of
+// a single root node.
 type Tree struct {
 	Root *Node
 }
 
+// Insert inserts the value into the tree.
+// It is possible to have multiple copies
+// of the same value in a tree at once.
 func (t *Tree) Insert(v Value) {
 	if t.Root == nil {
 		t.Root = &Node{Value: v}
@@ -43,6 +54,10 @@ func (t *Tree) Insert(v Value) {
 	t.Root = newNode
 }
 
+// Delete deletes one instance of v appearing
+// in the tree.
+// If the value v is present in the tree more
+// than once, only one instance is deleted.
 func (t *Tree) Delete(v Value) {
 	if t.Root == nil {
 		return
@@ -62,6 +77,8 @@ func (t *Tree) Delete(v Value) {
 	}
 }
 
+// Height returns the height of the tree,
+// where 0 indicates that the tree is empty.
 func (t *Tree) Height() int {
 	return t.Root.height()
 }
