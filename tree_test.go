@@ -70,6 +70,15 @@ func TestDeletions(t *testing.T) {
 	}
 }
 
+func BenchmarkInsertions(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var tree Tree
+		for i := 0; i < 1000; i++ {
+			tree.Insert(NumValue((17 * i) % 337))
+		}
+	}
+}
+
 func properlySorted(t *Node) bool {
 	if t == nil {
 		return true
