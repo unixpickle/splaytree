@@ -70,6 +70,30 @@ func TestDeletions(t *testing.T) {
 	}
 }
 
+func TestMinMax(t *testing.T) {
+	tree := &Tree{}
+	var min, max int
+	for i := 0; i < 100; i++ {
+		n := rand.Intn(10000) + ((i*17 + 29) % 13)
+		tree.Insert(NumValue(n))
+		if i == 0 || n < min {
+			min = n
+		}
+		if i == 0 || n > max {
+			max = n
+		}
+	}
+
+	actualMin := int(tree.Min().(NumValue))
+	actualMax := int(tree.Max().(NumValue))
+	if actualMin != min {
+		t.Errorf("min should be %d but got %d", min, actualMin)
+	}
+	if actualMax != max {
+		t.Errorf("max should be %d but got %d", max, actualMax)
+	}
+}
+
 func BenchmarkInsertions(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var tree Tree

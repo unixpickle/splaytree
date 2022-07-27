@@ -83,6 +83,30 @@ func (t *Tree) Height() int {
 	return t.Root.height()
 }
 
+// Min gets the leftmost value.
+func (t *Tree) Min() Value {
+	if t.Root == nil {
+		return nil
+	}
+	n := t.Root
+	for n.Left != nil {
+		n = n.Left
+	}
+	return n.Value
+}
+
+// Max gets the rightmost value.
+func (t *Tree) Max() Value {
+	if t.Root == nil {
+		return nil
+	}
+	n := t.Root
+	for n.Right != nil {
+		n = n.Right
+	}
+	return n.Value
+}
+
 func (n *Node) height() int {
 	if n == nil {
 		return 0
@@ -168,4 +192,10 @@ type greatestValue struct{}
 
 func (_ greatestValue) Compare(v Value) int {
 	return 1
+}
+
+type smallestValue struct{}
+
+func (_ smallestValue) Compare(v Value) int {
+	return -1
 }
