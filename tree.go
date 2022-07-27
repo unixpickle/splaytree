@@ -4,40 +4,40 @@
 // operations.
 package splaytree
 
-// Value is any comparable type of value.
-type Value interface {
+// Value is an abstract comparable type of value.
+type Value[T any] interface {
 	// Compare returns 1 if the callee
 	// is greater than v2, -1 if it is
 	// less than v2, or 0 if they are equal.
-	Compare(v2 Value) int
+	Compare(v2 T) int
 }
 
 // Node is a node in a tree.
-type Node struct {
-	Value Value
-	Left  *Node
-	Right *Node
+type Node[T Value[T]] struct {
+	Value T
+	Left  *Node[T]
+	Right *Node[T]
 }
 
 // Tree is a splay tree, which consists of
 // a single root node.
-type Tree struct {
-	Root *Node
+type Tree[T Value[T]] struct {
+	Root *Node[T]
 }
 
 // Insert inserts the value into the tree.
 // It is possible to have multiple copies
 // of the same value in a tree at once.
-func (t *Tree) Insert(v Value) {
+func (t *Tree[T]) Insert(v T) {
 	if t.Root == nil {
-		t.Root = &Node{Value: v}
+		t.Root = &Node[T]{Value: v}
 		return
 	}
 
 	splay(&t.Root, v)
 
 	comparison := v.Compare(t.Root.Value)
-	newNode := &Node{Value: v}
+	newNode := &Node[T]{Value: v}
 	if comparison < 0 {
 		newNode.Left = t.Root.Left
 		t.Root.Left = nil
@@ -58,7 +58,7 @@ func (t *Tree) Insert(v Value) {
 // in the tree.
 // If the value v is present in the tree more
 // than once, only one instance is deleted.
-func (t *Tree) Delete(v Value) {
+func (t *Tree[T]) Delete(v Value[T]) {
 	if t.Root == nil {
 		return
 	}
@@ -71,7 +71,7 @@ func (t *Tree) Delete(v Value) {
 	if t.Root.Left == nil {
 		t.Root = t.Root.Right
 	} else {
-		splay(&t.Root.Left, greatestValue{})
+		splay(&t.Root.Left, greatestValue[T]{})
 		t.Root.Left.Right = t.Root.Right
 		t.Root = t.Root.Left
 	}
@@ -79,14 +79,16 @@ func (t *Tree) Delete(v Value) {
 
 // Height returns the height of the tree,
 // where 0 indicates that the tree is empty.
-func (t *Tree) Height() int {
+func (t *Tree[T]) Height() int {
 	return t.Root.height()
 }
 
-// Min gets the leftmost value.
-func (t *Tree) Min() Value {
+// Min gets the leftmost value, or the zero value of T if
+// the tree is empty.
+func (t *Tree[T]) Min() T {
 	if t.Root == nil {
-		return nil
+		var zeroVal T
+		return zeroVal
 	}
 	n := t.Root
 	for n.Left != nil {
@@ -95,10 +97,12 @@ func (t *Tree) Min() Value {
 	return n.Value
 }
 
-// Max gets the rightmost value.
-func (t *Tree) Max() Value {
+// Max gets the rightmost value, or the zero value of T if
+// the tree is empty.
+func (t *Tree[T]) Max() T {
 	if t.Root == nil {
-		return nil
+		var zeroVal T
+		return zeroVal
 	}
 	n := t.Root
 	for n.Right != nil {
@@ -107,7 +111,7 @@ func (t *Tree) Max() Value {
 	return n.Value
 }
 
-func (n *Node) height() int {
+func (n *Node[T]) height() int {
 	if n == nil {
 		return 0
 	}
@@ -125,7 +129,7 @@ func (n *Node) height() int {
 // If the value is found, the root
 // will be set to a node with that
 // value.
-func splay(root **Node, v Value) {
+func splay[T Value[T], V Value[T]](root **Node[T], v V) {
 	if (*root) == nil {
 		return
 	}
@@ -188,14 +192,8 @@ func splay(root **Node, v Value) {
 	}
 }
 
-type greatestValue struct{}
+type greatestValue[T Value[T]] struct{}
 
-func (_ greatestValue) Compare(v Value) int {
+func (_ greatestValue[T]) Compare(v T) int {
 	return 1
-}
-
-type smallestValue struct{}
-
-func (_ smallestValue) Compare(v Value) int {
-	return -1
 }

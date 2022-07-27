@@ -6,7 +6,7 @@ import (
 )
 
 func TestInsertions(t *testing.T) {
-	tree := &Tree{}
+	tree := &Tree[NumValue]{}
 	allValues := map[int]int{}
 	for i := 0; i < 2000; i++ {
 		n := rand.Intn(1000)
@@ -22,7 +22,7 @@ func TestInsertions(t *testing.T) {
 }
 
 func TestDeletions(t *testing.T) {
-	tree := &Tree{}
+	tree := &Tree[NumValue]{}
 	var valueCount int
 	allValues := map[int]int{}
 
@@ -71,7 +71,7 @@ func TestDeletions(t *testing.T) {
 }
 
 func TestMinMax(t *testing.T) {
-	tree := &Tree{}
+	tree := &Tree[NumValue]{}
 	var min, max int
 	for i := 0; i < 100; i++ {
 		n := rand.Intn(10000) + ((i*17 + 29) % 13)
@@ -84,8 +84,8 @@ func TestMinMax(t *testing.T) {
 		}
 	}
 
-	actualMin := int(tree.Min().(NumValue))
-	actualMax := int(tree.Max().(NumValue))
+	actualMin := int(tree.Min())
+	actualMax := int(tree.Max())
 	if actualMin != min {
 		t.Errorf("min should be %d but got %d", min, actualMin)
 	}
@@ -96,14 +96,14 @@ func TestMinMax(t *testing.T) {
 
 func BenchmarkInsertions(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		var tree Tree
+		var tree Tree[NumValue]
 		for i := 0; i < 1000; i++ {
 			tree.Insert(NumValue((17 * i) % 337))
 		}
 	}
 }
 
-func properlySorted(t *Node) bool {
+func properlySorted(t *Node[NumValue]) bool {
 	if t == nil {
 		return true
 	}
@@ -119,7 +119,7 @@ func properlySorted(t *Node) bool {
 	return true
 }
 
-func containsValues(t *Tree, vals map[int]int) bool {
+func containsValues(t *Tree[NumValue], vals map[int]int) bool {
 	subMap := map[int]int{}
 	for x, y := range vals {
 		subMap[x] = y
@@ -133,22 +133,21 @@ func containsValues(t *Tree, vals map[int]int) bool {
 	return true
 }
 
-func subtractNodeValues(n *Node, vals map[int]int) {
+func subtractNodeValues(n *Node[NumValue], vals map[int]int) {
 	if n == nil {
 		return
 	}
-	vals[int(n.Value.(NumValue))]--
+	vals[int(n.Value)]--
 	subtractNodeValues(n.Left, vals)
 	subtractNodeValues(n.Right, vals)
 }
 
 type NumValue int
 
-func (n NumValue) Compare(x Value) int {
-	xv := x.(NumValue)
-	if n > xv {
+func (n NumValue) Compare(x NumValue) int {
+	if n > x {
 		return 1
-	} else if n < xv {
+	} else if n < x {
 		return -1
 	} else {
 		return 0
