@@ -111,6 +111,19 @@ func (t *Tree[T]) Max() T {
 	return n.Value
 }
 
+// Len gets the number of values stored in the tree.
+func (t *Tree[T]) Len() int {
+	return t.Root.Len()
+}
+
+// Iterate iterates over elements in the tree from least to greatest.
+// Calls f for each element, breaking the loop if f returns false.
+//
+// It is not safe to modify the tree during iteration.
+func (t *Tree[T]) Iterate(f func(T) bool) {
+	t.Root.Iterate(f)
+}
+
 func (n *Node[T]) height() int {
 	if n == nil {
 		return 0
@@ -122,6 +135,32 @@ func (n *Node[T]) height() int {
 	} else {
 		return 1 + h2
 	}
+}
+
+func (n *Node[T]) Len() int {
+	if n == nil {
+		return 0
+	} else {
+		return 1 + n.Left.Len() + n.Right.Len()
+	}
+}
+
+func (n *Node[T]) Iterate(f func(T) bool) bool {
+	if n == nil {
+		return true
+	}
+	if n.Left != nil {
+		if !n.Left.Iterate(f) {
+			return false
+		}
+	}
+	if !f(n.Value) {
+		return false
+	}
+	if n.Right != nil {
+		return n.Right.Iterate(f)
+	}
+	return true
 }
 
 // splay searches for a value v and

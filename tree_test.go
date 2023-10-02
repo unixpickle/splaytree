@@ -2,6 +2,7 @@ package splaytree
 
 import (
 	"math/rand"
+	"sort"
 	"testing"
 )
 
@@ -91,6 +92,61 @@ func TestMinMax(t *testing.T) {
 	}
 	if actualMax != max {
 		t.Errorf("max should be %d but got %d", max, actualMax)
+	}
+}
+
+func TestLen(t *testing.T) {
+	tree := &Tree[NumValue]{}
+	for i := 0; i < 100; i++ {
+		n := rand.Intn(10000) + ((i*17 + 29) % 13)
+		tree.Insert(NumValue(n))
+		if actual := tree.Len(); actual != i+1 {
+			t.Errorf("expected len %d but got %d", i+1, actual)
+		}
+	}
+}
+
+func TestIterate(t *testing.T) {
+	tree := &Tree[NumValue]{}
+	var expected []NumValue
+	for i := 0; i < 100; i++ {
+		n := rand.Intn(10000) + ((i*17 + 29) % 13)
+		tree.Insert(NumValue(n))
+		expected = append(expected, NumValue(n))
+		sort.Slice(expected, func(i, j int) bool {
+			return expected[i] < expected[j]
+		})
+		var actual []NumValue
+		tree.Iterate(func(v NumValue) bool {
+			actual = append(actual, v)
+			return true
+		})
+		if len(actual) != len(expected) {
+			t.Fatalf("expected len %d but got %d", len(expected), len(actual))
+		}
+		for i, x := range expected {
+			a := actual[i]
+			if x != a {
+				t.Fatalf("expected index %d to be %v but got %v", i, x, a)
+			}
+		}
+
+		// Test stopping early.
+		actual = nil
+		size := rand.Intn(len(expected)) + 1
+		tree.Iterate(func(v NumValue) bool {
+			actual = append(actual, v)
+			return len(actual) < size
+		})
+		if len(actual) != size {
+			t.Fatalf("expected len %d but got %d", size, len(actual))
+		}
+		for i, x := range expected[:size] {
+			a := actual[i]
+			if x != a {
+				t.Fatalf("expected index %d to be %v but got %v", i, x, a)
+			}
+		}
 	}
 }
 
